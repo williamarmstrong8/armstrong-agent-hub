@@ -1,0 +1,23 @@
+diff --git a/lib/form_data.js b/lib/form_data.js
+index a05c8ce8c2bdff8a9aea43f0a117e5f9a283c09d..648f45c403018e5d1267f39dc2e25c3a2c560ba6 100644
+--- a/lib/form_data.js
++++ b/lib/form_data.js
+@@ -5,7 +5,17 @@ var util = require('util');
+ var path = require('path');
+ var http = require('http');
+ var https = require('https');
+-var parseUrl = require('url').parse;
++function parseUrl(input) {
++  var u = new URL(input);
++  return {
++    protocol: u.protocol,
++    hostname: u.hostname,
++    port: u.port || null,
++    pathname: u.pathname,
++    path: u.pathname + u.search,
++    href: u.href,
++  };
++}
+ var fs = require('fs');
+ var Stream = require('stream').Stream;
+ var crypto = require('crypto');

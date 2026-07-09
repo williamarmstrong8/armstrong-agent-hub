@@ -1,0 +1,102 @@
+diff --git a/lib/index.es.js b/lib/index.es.js
+index aae9799c1a8798d5899ffed6deda4c98b7007b48..adf4d52de7e8bb1af4995307ef2d74b470a7a268 100644
+--- a/lib/index.es.js
++++ b/lib/index.es.js
+@@ -1156,12 +1156,24 @@ function parseURL(urlStr) {
+  		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
+  	Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
+  */
+-	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
+-		urlStr = new URL(urlStr).toString();
++	if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
++		throw new TypeError('Only absolute URLs are supported');
+ 	}
+-
+-	// Fallback to old implementation for arbitrary URLs
+-	return parse_url(urlStr);
++	const u = new URL(urlStr);
++	return {
++		protocol: u.protocol,
++		slashes: true,
++		auth: u.username ? (u.password ? `${u.username}:${u.password}` : u.username) : null,
++		host: u.host,
++		port: u.port,
++		hostname: u.hostname,
++		hash: u.hash,
++		search: u.search,
++		query: u.search ? u.search.slice(1) : null,
++		pathname: u.pathname,
++		path: u.pathname + u.search,
++		href: u.href
++	};
+ }
+ 
+ const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
+diff --git a/lib/index.js b/lib/index.js
+index 567ff5da58e83683bec0ea9e86221041ddf9435f..b2ffacbef23349788ce3de06df295a10e6db940a 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -1160,12 +1160,24 @@ function parseURL(urlStr) {
+  		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
+  	Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
+  */
+-	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
+-		urlStr = new URL(urlStr).toString();
++	if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
++		throw new TypeError('Only absolute URLs are supported');
+ 	}
+-
+-	// Fallback to old implementation for arbitrary URLs
+-	return parse_url(urlStr);
++	const u = new URL(urlStr);
++	return {
++		protocol: u.protocol,
++		slashes: true,
++		auth: u.username ? (u.password ? `${u.username}:${u.password}` : u.username) : null,
++		host: u.host,
++		port: u.port,
++		hostname: u.hostname,
++		hash: u.hash,
++		search: u.search,
++		query: u.search ? u.search.slice(1) : null,
++		pathname: u.pathname,
++		path: u.pathname + u.search,
++		href: u.href
++	};
+ }
+ 
+ const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;
+diff --git a/lib/index.mjs b/lib/index.mjs
+index 2863dd9c318754a77c6bfb57ec5e7db8759abd8b..479cc1696e165b31cd3a87de951dd23fef2b2235 100644
+--- a/lib/index.mjs
++++ b/lib/index.mjs
+@@ -1154,12 +1154,24 @@ function parseURL(urlStr) {
+  		Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
+  	Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
+  */
+-	if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
+-		urlStr = new URL(urlStr).toString();
++	if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
++		throw new TypeError('Only absolute URLs are supported');
+ 	}
+-
+-	// Fallback to old implementation for arbitrary URLs
+-	return parse_url(urlStr);
++	const u = new URL(urlStr);
++	return {
++		protocol: u.protocol,
++		slashes: true,
++		auth: u.username ? (u.password ? `${u.username}:${u.password}` : u.username) : null,
++		host: u.host,
++		port: u.port,
++		hostname: u.hostname,
++		hash: u.hash,
++		search: u.search,
++		query: u.search ? u.search.slice(1) : null,
++		pathname: u.pathname,
++		path: u.pathname + u.search,
++		href: u.href
++	};
+ }
+ 
+ const streamDestructionSupported = 'destroy' in Stream.Readable.prototype;

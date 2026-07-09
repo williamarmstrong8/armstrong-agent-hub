@@ -1,0 +1,214 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+  life-hub design system
+  Light-mode Vercel/Geist aesthetic.
+  Depth from hairline borders and soft drop shadows — no neomorphism.
+*/
+
+:root {
+  --surface: #ffffff;
+  --surface-2: #fafafa;
+  --background: #fafafa;
+  --foreground: #14161a;
+  --muted: #6b7280;
+  --muted-2: #9aa1ad;
+
+  --border: #e5e7eb;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  /* accents — restrained, Vercel-ish */
+  --accent: #111318;
+  --accent-fg: #f7f8fa;
+  --ring: #0a7cff;
+
+  /* semantic */
+  --success: #17a673;
+  --warning: #d99400;
+  --danger: #e5484d;
+  --info: #0a7cff;
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-lg: 26px;
+  --radius-md: 12px;
+
+  /* shadcn sidebar + primitives (mapped to life-hub palette) */
+  --primary: #111318;
+  --primary-foreground: #f7f8fa;
+  --secondary: #fafafa;
+  --secondary-foreground: #14161a;
+  --muted-foreground: #6b7280;
+  --popover: #ffffff;
+  --popover-foreground: #14161a;
+  --destructive: #e5484d;
+  --input: #e5e7eb;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #14161a;
+  --sidebar-primary: #111318;
+  --sidebar-primary-foreground: #f7f8fa;
+  --sidebar-accent: #fafafa;
+  --sidebar-accent-foreground: #14161a;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #0a7cff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-border: var(--border);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius: var(--radius);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+}
+
+/* --- Surface primitives --- */
+
+.nu-raised {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.nu-raised-sm {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.nu-inset {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.nu-inset-sm {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.nu-flat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.nu-pressable {
+  transition: box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
+}
+.nu-pressable:active {
+  background: var(--surface-2);
+  box-shadow: none;
+  transform: translateY(0.5px);
+}
+
+.nu-focus:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px color-mix(in srgb, var(--ring) 55%, transparent);
+}
+
+.hairline {
+  border: 1px solid var(--border);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, var(--foreground), var(--muted));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+  border: 3px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-2);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, #ffffff 70%, transparent),
+    transparent
+  );
+  animation: shimmer 1.6s infinite;
+}
