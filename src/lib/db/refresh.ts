@@ -5,11 +5,43 @@ import { upsertListings } from "./apartments";
 import { upsertHealthSnapshot } from "./health";
 import { hasDb } from "./client";
 
+export type ApartmentsRefresh = { live: boolean; upserted: number; new: number };
+export type HealthRefresh = { live: boolean; stored: boolean };
+
 export type RefreshResult = {
   ok: boolean;
-  apartments: { live: boolean; upserted: number; new: number };
-  health: { live: boolean; stored: boolean };
+  apartments: ApartmentsRefresh;
+  health: HealthRefresh;
 };
+
+/**
+ * Pull the current live StreetEasy listings for every search and persist them.
+ * Only real data is stored — sample fallbacks never touch the DB. Idempotent.
+ */
+export async function refreshApartments(): Promise<ApartmentsRefresh> {
+  const out: ApartmentsRefresh = { live: false, upserted: 0, new: 0 };
+  const apts = await getApartments();
+  out.live = apts.live;
+  const listings = apts.results.flatMap((r) => r.listings);
+  if (hasDb && apts.live && listings.length) {
+    const newIds = await upsertListings(listings);
+    out.upserted = listings.length;
+    out.new = newIds.length;
+  }
+  return out;
+}
+
+/** Pull today's live Garmin health summary and persist it. Idempotent. */
+export async function refreshHealth(): Promise<HealthRefresh> {
+  const out: HealthRefresh = { live: false, stored: false };
+  const health = await getHealth();
+  out.live = health.live;
+  if (hasDb && health.live) {
+    await upsertHealthSnapshot(health);
+    out.stored = true;
+  }
+  return out;
+}
 
 /**
  * Pull the current live data from every source and persist it. Designed to be
@@ -17,32 +49,10 @@ export type RefreshResult = {
  * idempotent). Each source degrades independently.
  */
 export async function refreshAll(): Promise<RefreshResult> {
-  const result: RefreshResult = {
+  const [apts, health] = await Promise.allSettled([refreshApartments(), refreshHealth()]);
+  return {
     ok: hasDb,
-    apartments: { live: false, upserted: 0, new: 0 },
-    health: { live: false, stored: false },
+    apartments: apts.status === "fulfilled" ? apts.value : { live: false, upserted: 0, new: 0 },
+    health: health.status === "fulfilled" ? health.value : { live: false, stored: false },
   };
-
-  const [apts, health] = await Promise.allSettled([getApartments(), getHealth()]);
-
-  if (apts.status === "fulfilled") {
-    result.apartments.live = apts.value.live;
-    const listings = apts.value.results.flatMap((r) => r.listings);
-    // Only persist real data — never pollute the store with sample listings.
-    if (hasDb && apts.value.live && listings.length) {
-      const newIds = await upsertListings(listings);
-      result.apartments.upserted = listings.length;
-      result.apartments.new = newIds.length;
-    }
-  }
-
-  if (health.status === "fulfilled") {
-    result.health.live = health.value.live;
-    if (hasDb && health.value.live) {
-      await upsertHealthSnapshot(health.value);
-      result.health.stored = true;
-    }
-  }
-
-  return result;
 }

@@ -6,8 +6,10 @@ import { Ring } from "@/components/ui/ring";
 import { Sparkline } from "@/components/charts/sparkline";
 import { Icon } from "@/components/ui/icon";
 import { Stat } from "@/components/ui/stat";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { relativeTime } from "@/lib/utils";
 import type { HealthSummary } from "@/lib/types";
+import { refreshHealthAction } from "@/app/health/actions";
 
 const activityIcon: Record<string, string> = {
   cycling: "Bike",
@@ -25,6 +27,15 @@ function formatSleep(minutes: number | null, hours: number | null): string {
 export function HealthView({ health }: { health: HealthSummary }) {
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <RefreshButton
+          action={refreshHealthAction}
+          label="Refresh Garmin"
+          accent="#e5484d"
+          formatResult={(r) => (r.live ? "Garmin synced" : "No live data")}
+        />
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-3">
         {/* rings */}
         <Card className="lg:col-span-1">

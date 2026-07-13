@@ -4,21 +4,42 @@ import { useMemo, useState } from "react";
 import { ListingCard } from "./listing-card";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { cn, formatCurrency } from "@/lib/utils";
-import { APARTMENT_OUTREACH, GEO_RULES } from "@/lib/config";
+import { apartmentOutreach, APARTMENT_SEARCHES, GEO_RULES } from "@/lib/config";
 import type { ListingResult } from "@/lib/types";
 import { OutreachScript } from "./outreach-script";
+import { refreshApartmentsAction } from "@/app/apartments/actions";
 
 export function ApartmentsView({ results }: { results: ListingResult[] }) {
   const [view, setView] = useState<"active" | "passed">("active");
   const [showExcluded, setShowExcluded] = useState(false);
+  const [activeSearch, setActiveSearch] = useState<string>(results[0]?.searchId ?? "");
 
-  // Single flattened pool across searches, split by pass status.
-  const allListings = useMemo(() => results.flatMap((r) => r.listings), [results]);
+  // Listings for the selected search only, split by pass status.
+  const activeResult = useMemo(
+    () => results.find((r) => r.searchId === activeSearch) ?? results[0],
+    [results, activeSearch]
+  );
+  const allListings = useMemo(() => activeResult?.listings ?? [], [activeResult]);
   const passed = useMemo(() => allListings.filter((l) => l.status === "dislike"), [allListings]);
   const activePool = useMemo(() => allListings.filter((l) => l.status !== "dislike"), [allListings]);
 
-  const searchLabel = results[0]?.label ?? "Listings";
+  // "New" = untriaged: no like, pass, or contact yet. Only surface ones that
+  // pass the geo rules so the section stays actionable.
+  const newListings = useMemo(
+    () => allListings.filter((l) => (l.status ?? "none") === "none" && l.passesGeo),
+    [allListings]
+  );
+
+  const searchLabel = activeResult?.label ?? "Listings";
+
+  // Tailor the outreach message to the active search: bigger units imply more
+  // applicants, but never fewer than three.
+  const outreachText = useMemo(() => {
+    const bedrooms = APARTMENT_SEARCHES.find((s) => s.id === activeResult?.searchId)?.bedroomsMin;
+    return apartmentOutreach(Math.max(3, bedrooms ?? 3));
+  }, [activeResult]);
 
   const visible = useMemo(() => {
     if (view === "passed") return passed;
@@ -33,6 +54,61 @@ export function ApartmentsView({ results }: { results: ListingResult[] }) {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {results.length > 1 ? (
+          <div className="inline-flex gap-1 rounded-full nu-inset p-1">
+            {results.map((r) => (
+              <button
+                key={r.searchId}
+                type="button"
+                onClick={() => {
+                  setActiveSearch(r.searchId);
+                  setView("active");
+                }}
+                className={cn(
+                  "rounded-full px-3.5 py-1.5 text-xs font-medium nu-pressable transition-colors",
+                  r.searchId === activeSearch ? "nu-raised-sm text-foreground" : "text-muted"
+                )}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span />
+        )}
+        <RefreshButton
+          action={refreshApartmentsAction}
+          label="Refresh listings"
+          accent="#0a7cff"
+          formatResult={(r) =>
+            r.live ? `${r.new} new · ${r.upserted} synced` : "No live data"
+          }
+        />
+      </div>
+
+      {newListings.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[var(--radius-sm)] nu-raised-sm text-[#0a7cff]">
+              <Icon name="Sparkle" size={17} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold tracking-tight">New listings</div>
+              <div className="text-[11px] text-muted">Not yet liked, passed, or contacted</div>
+            </div>
+            <span className="ml-auto rounded-full nu-inset px-2.5 py-1 text-[11px] font-semibold tabular-nums text-[#0a7cff]">
+              {newListings.length}
+            </span>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {newListings.map((l, i) => (
+              <ListingCard key={l.id} listing={l} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Card variant="raised">
           <div className="flex items-center gap-2.5">
@@ -89,7 +165,7 @@ export function ApartmentsView({ results }: { results: ListingResult[] }) {
         </Card>
       </div>
 
-      <OutreachScript text={APARTMENT_OUTREACH} />
+      <OutreachScript text={outreachText} />
 
       {/* toggle (active view only) */}
       <div className="flex items-center justify-between">

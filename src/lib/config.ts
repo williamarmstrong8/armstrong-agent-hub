@@ -15,8 +15,10 @@ export type ApartmentSearch = {
 };
 
 /**
- * The active rental search:
+ * The active rental searches:
  *   - 2 bed under $5.2k in the East Village
+ *   - 3 bed under $7.5k in the East Village
+ *   - 4 bed under $10k in the East Village
  */
 export const APARTMENT_SEARCHES: ApartmentSearch[] = [
   {
@@ -26,6 +28,22 @@ export const APARTMENT_SEARCHES: ApartmentSearch[] = [
     bedroomsMin: 2,
     bedroomsMax: 2,
     priceMax: 5200,
+  },
+  {
+    id: "3br-7.5k",
+    label: "3 Bed · under $7.5k",
+    areas: ["EAST_VILLAGE"],
+    bedroomsMin: 3,
+    bedroomsMax: 3,
+    priceMax: 7500,
+  },
+  {
+    id: "4br-10k",
+    label: "4 Bed · under $10k",
+    areas: ["EAST_VILLAGE"],
+    bedroomsMin: 4,
+    bedroomsMax: 4,
+    priceMax: 10000,
   },
 ];
 
@@ -126,10 +144,27 @@ export const OWNER = {
   city: "New York, NY",
 };
 
-/** Copy-paste inquiry for StreetEasy / broker messages. */
-export const APARTMENT_OUTREACH = `Hi there,
+const APPLICANT_WORDS: Record<number, string> = {
+  2: "two",
+  3: "three",
+  4: "four",
+  5: "five",
+};
 
-We're two applicants looking to move in on August 1st. Our combined household income is $200k+, and we have guarantors with paperwork ready to go. We'd love to apply as soon as possible. Would it be possible to get the details and schedule a tour this week?
+/**
+ * Copy-paste inquiry for StreetEasy / broker messages, tailored to the number
+ * of applicants. Smaller searches keep the three-person message; the 4-bed uses
+ * a four-person variant.
+ */
+export function apartmentOutreach(applicants: number): string {
+  const word = APPLICANT_WORDS[applicants] ?? `${applicants}`;
+  return `Hi there,
+
+We're ${word} applicants and would love to tour as soon as possible. We have all the paperwork ready to go, guarantors included, and are ready to submit an application right away. Would it be possible to get the details and schedule a tour this week?
 
 Thank you,
 ${OWNER.fullName}`;
+}
+
+/** Default outreach message (three applicants). */
+export const APARTMENT_OUTREACH = apartmentOutreach(3);
