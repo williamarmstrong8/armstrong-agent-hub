@@ -14,7 +14,7 @@ export default async function ApartmentsPage() {
         icon="Building2"
         accent="#0a7cff"
         title="Home Search"
-        subtitle="East Village rentals, filtered to your exact rules."
+        subtitle="East Village & Lower East Side rentals, filtered to your exact rules."
         live={live}
         source="StreetEasy"
       />

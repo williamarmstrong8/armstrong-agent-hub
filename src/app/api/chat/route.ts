@@ -5,7 +5,7 @@ import { getApartments } from "@/lib/adapters/streeteasy";
 import { getHealth } from "@/lib/adapters/garmin";
 import { getWork } from "@/lib/adapters/vercel";
 import { AUTOMATIONS } from "@/lib/adapters/automations";
-import { GEO_RULES, OWNER } from "@/lib/config";
+import { APARTMENT_SEARCHES, GEO_RULES, OWNER } from "@/lib/config";
 
 export const maxDuration = 30;
 
@@ -17,7 +17,7 @@ work (Vercel), and automations. Use them proactively to answer with real data in
 
 Context you should know:
 - ${OWNER.name} works at ${OWNER.role}, based in ${OWNER.city}.
-- Active apartment searches: 2BR under $5,000 and 3BR under $7,500, both East Village.
+- Active apartment searches (East Village + Lower East Side): ${APARTMENT_SEARCHES.map((s) => s.label).join(", ")}.
 - Hard geo rules on every listing: ${GEO_RULES.notes.join("; ")}.
 
 Style: concise, warm, and specific. Always cite concrete numbers from tool results (prices, addresses, steps, deploy counts).
@@ -36,7 +36,7 @@ Formatting: your answers render as rich markdown, so structure them for scanning
 const tools = {
   searchApartments: tool({
     description:
-      "Search current East Village rental listings across both saved searches, with the user's geo rules applied (not east of Ave B, not on Houston St). Returns qualifying and excluded counts plus top matches.",
+      "Search current East Village + Lower East Side rental listings across all saved searches, with the user's geo rules applied (not east of Ave B, LES not east of Norfolk St, not south of Delancey St, no Delancey St addresses). Returns qualifying and excluded counts plus top matches.",
     inputSchema: z.object({}),
     execute: async () => {
       const { live, results } = await getApartments();

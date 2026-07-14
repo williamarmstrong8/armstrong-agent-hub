@@ -117,7 +117,7 @@ export function ApartmentsView({ results }: { results: ListingResult[] }) {
             </span>
             <div className="min-w-0">
               <div className="text-sm font-semibold tracking-tight">{searchLabel}</div>
-              <div className="text-[11px] text-muted">East Village · StreetEasy</div>
+              <div className="text-[11px] text-muted">East Village & LES · StreetEasy</div>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
